@@ -1,0 +1,130 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "image-mapper.fullname" . }}
+  labels:
+    {{- include "image-mapper.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "image-mapper.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        cs.sap.com/config-checksum: {{ include "image-mapper.configChecksum" . }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "image-mapper.selectorLabels" . | nindent 8 }}
+        image-mapper.cs.sap.com/ignored: "true"
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+      {{- range . }}
+      - {{ toYaml . | nindent 8 | trim }}
+        {{- if not .labelSelector }}
+        labelSelector:
+          matchLabels:
+            {{- include "image-mapper.selectorLabels" $ | nindent 12 }}
+        {{- end }}
+      {{- end }}
+      {{- else }}
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        nodeTaintsPolicy: Honor
+        whenUnsatisfiable: {{ .Values.defaultHostNameSpreadPolicy  }}
+        labelSelector:
+          matchLabels:
+            {{- include "image-mapper.selectorLabels" . | nindent 12 }}
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        nodeTaintsPolicy: Honor
+        whenUnsatisfiable: {{ .Values.defaultZoneSpreadPolicy  }}
+        labelSelector:
+          matchLabels:
+            {{- include "image-mapper.selectorLabels" . | nindent 12 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
+      serviceAccountName: {{ include "image-mapper.fullname" . }}
+      automountServiceAccountToken: true
+      containers:
+      - name: webhook
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: webhooks
+          containerPort: 2443
+          protocol: TCP
+        {{- with .Values.securityContext }}
+        securityContext:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        livenessProbe:
+          httpGet:
+            port: webhooks
+            scheme: HTTPS
+            path: /healthz
+        readinessProbe:
+          httpGet:
+            port: webhooks
+            scheme: HTTPS
+            path: /healthz
+        args:
+        - -tls-key-file=/app/etc/tls/tls.key
+        - -tls-cert-file=/app/etc/tls/tls.crt
+        - -mapping-file=/app/etc/config/mapping.json
+        {{- range $key, $value := .Values.mutatedPodsAdditionalLabels }}
+        - -add-label={{ $key }}={{ $value }}
+        {{- end }}
+        {{- range $key, $value := .Values.mutatedPodsAdditionalAnnotations}}
+        - -add-annotation={{ $key }}={{ $value }}
+        {{- end }}
+        {{- with .Values.logLevel }}
+        - -v={{ . }}
+        {{- end }}
+        volumeMounts:
+        - mountPath: /app/etc/tls
+          name: tls
+          readOnly: true
+        - mountPath: /app/etc/config
+          name: config
+          readOnly: true
+      volumes:
+      - name: tls
+        secret:
+          defaultMode: 420
+          secretName: {{ include "image-mapper.fullname" . }}-{{ ternary "tls-managed" "tls" .Values.webhook.certManager.enabled }}
+      - name: config
+        configMap:
+          name: {{ include "image-mapper.fullname" . }}-config

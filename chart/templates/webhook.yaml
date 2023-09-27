@@ -1,0 +1,141 @@
+{{- $caCert := "" }}
+{{- if .Values.webhook.certManager.enabled }}
+{{- if not .Values.webhook.certManager.issuerName }}
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "image-mapper.fullname" . }}
+  labels:
+    {{- include "image-mapper.labels" . | nindent 4 }}
+spec:
+  selfSigned: {}
+{{- end }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "image-mapper.fullname" . }}
+  labels:
+    {{- include "image-mapper.labels" . | nindent 4 }}
+spec:
+  dnsNames:
+  - {{ include "image-mapper.fullname" . }}
+  - {{ include "image-mapper.fullname" . }}.{{ .Release.Namespace }}
+  - {{ include "image-mapper.fullname" . }}.{{ .Release.Namespace }}.svc
+  - {{ include "image-mapper.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+  issuerRef:
+    {{- if .Values.webhook.certManager.issuerName }}
+    {{- with .Values.webhook.certManager.issuerGroup }}
+    group: {{ . }}
+    {{- end }}
+    {{- with .Values.webhook.certManager.issuerKind }}
+    kind: {{ . }}
+    {{- end }}
+    name: {{ .Values.webhook.certManager.issuerName }}
+    {{- else }}
+    name: {{ include "image-mapper.fullname" . }}
+    {{- end }}
+  secretName: {{ include "image-mapper.fullname" . }}-tls-managed
+{{- else }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "image-mapper.fullname" . }}-tls
+  labels:
+    {{- include "image-mapper.labels" . | nindent 4 }}
+type: Opaque
+data:
+  {{- $data := (lookup "v1" "Secret" .Release.Namespace (printf "%s-tls" (include "image-mapper.fullname" .))).data }}
+  {{- if $data }}
+  {{ $data | toYaml | nindent 2 }}
+  {{- $caCert = index $data "ca.crt" }}
+  {{- else }}
+  {{- $cn := printf "%s.%s.svc" (include "image-mapper.fullname" .) .Release.Namespace }}
+  {{- $ca := genCA (printf "%s-ca" (include "image-mapper.fullname" .)) 36500 }}
+  {{- $cert := genSignedCert $cn nil (list $cn) 36500 $ca }}
+  ca.crt: {{ $ca.Cert | b64enc }}
+  tls.crt: {{ $cert.Cert | b64enc }}
+  tls.key: {{ $cert.Key | b64enc }}
+  {{- $caCert = $ca.Cert | b64enc }}
+  {{- end }}
+{{- end }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ include "image-mapper.fullname" . }}
+  labels:
+    {{- include "image-mapper.labels" . | nindent 4 }}
+  {{- if .Values.webhook.certManager.enabled }}
+  annotations:
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/{{ include "image-mapper.fullname" . }}
+  {{- end }}
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    {{- if not .Values.webhook.certManager.enabled }}
+    caBundle: {{ $caCert }}
+    {{- end }}
+    service:
+      name: {{ include "image-mapper.fullname" . }}
+      namespace: {{ .Release.Namespace }}
+      path: /core/v1/pod/mutate
+      port: 443
+  name: mutate.pods.core.k8s.io
+  rules:
+  - apiGroups:
+    - ""
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - pods
+    scope: Namespaced
+  objectSelector:
+    {{- with .Values.webhook.objectSelector.matchLabels }}
+    matchLabels:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    matchExpressions:
+    - key: image-mapper.cs.sap.com/ignored
+      operator: NotIn
+      values:
+      - "true"
+    - key: image-mapper.cs.sap.com/disabled
+      operator: NotIn
+      values:
+      - "true"
+    {{- with .Values.webhook.objectSelector.matchExpressions }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  namespaceSelector:
+  {{- with .Values.webhook.namespaceSelector.matchLabels }}
+    matchLabels:
+      {{- toYaml . | nindent 6 }}
+  {{- end }}
+    matchExpressions:
+    - key: image-mapper.cs.sap.com/ignored
+      operator: NotIn
+      values:
+      - "true"
+    - key: image-mapper.cs.sap.com/disabled
+      operator: NotIn
+      values:
+      - "true"
+    - key: kubernetes.io/metadata.name
+      operator: NotIn
+      values:
+      - kube-system
+    {{- with .Values.webhook.namespaceSelector.matchExpressions }}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
+  matchPolicy: Equivalent
+  sideEffects: None
+  timeoutSeconds: 10
+  failurePolicy: Fail
+  reinvocationPolicy: IfNeeded

@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "image-mapper.fullname" . }}
+  labels:
+    {{- include "image-mapper.labels" . | nindent 4 }}
+spec:
+  ports:
+    - port: 443
+      protocol: TCP
+      targetPort: webhooks
+      name: https
+  selector:
+    {{- include "image-mapper.selectorLabels" . | nindent 4 }}

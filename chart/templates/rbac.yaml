@@ -1,0 +1,7 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "image-mapper.fullname" . }}
+  labels:
+    {{- include "image-mapper.labels" . | nindent 4 }}
