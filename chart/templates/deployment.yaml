@@ -104,11 +104,11 @@ spec:
         - -tls-key-file=/app/etc/tls/tls.key
         - -tls-cert-file=/app/etc/tls/tls.crt
         - -mapping-file=/app/etc/config/mapping.json
-        {{- range $key, $value := .Values.mutatedPodsAdditionalLabels }}
-        - -add-label={{ $key }}={{ $value }}
+        {{- range $key, $value := .Values.labelsAddedIfModified }}
+        - -add-label-if-modified={{ $key }}={{ $value }}
         {{- end }}
-        {{- range $key, $value := .Values.mutatedPodsAdditionalAnnotations}}
-        - -add-annotation={{ $key }}={{ $value }}
+        {{- range $key, $value := .Values.annotationsAddedIfModified }}
+        - -add-annotation-if-modified={{ $key }}={{ $value }}
         {{- end }}
         {{- with .Values.logLevel }}
         - -v={{ . }}

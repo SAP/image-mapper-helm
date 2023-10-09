@@ -74,6 +74,6 @@ logLevel: 0
 # -- Mapping rules
 mapping: []
 # -- Labels to set on mutated pods
-mutatedPodsAdditionalLabels: {}
+labelsAddedIfModified: {}
 # -- Annotations to set on mutated pods
-mutatedPodsAdditionalAnnotations: {}
+annotationsAddedIfModified: {}
