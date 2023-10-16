@@ -114,10 +114,10 @@ webhooks:
     {{- toYaml . | nindent 4 }}
     {{- end }}
   namespaceSelector:
-  {{- with .Values.webhook.namespaceSelector.matchLabels }}
+    {{- with .Values.webhook.namespaceSelector.matchLabels }}
     matchLabels:
       {{- toYaml . | nindent 6 }}
-  {{- end }}
+    {{- end }}
     matchExpressions:
     - key: image-mapper.cs.sap.com/ignored
       operator: NotIn
