@@ -47,6 +47,8 @@ resources:
     memory: 128Mi
     # -- CPU request
     cpu: 100m
+dnsPolicy: ClusterFirst
+hostNetwork: false
 
 webhook:
   certManager:
