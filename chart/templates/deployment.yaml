@@ -76,6 +76,8 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "image-mapper.fullname" . }}
       automountServiceAccountToken: true
+      dnsPolicy: {{ .Values.dnsPolicy }}
+      hostNetwork: {{ .Values.hostNetwork }}
       containers:
       - name: webhook
         image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}

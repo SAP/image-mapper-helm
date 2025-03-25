@@ -1,6 +1,6 @@
 # image-mapper
 
-![Version: 0.4.45](https://img.shields.io/badge/Version-0.4.45-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.4.47](https://img.shields.io/badge/AppVersion-v0.4.47-informational?style=flat-square)
+![Version: 0.4.46](https://img.shields.io/badge/Version-0.4.46-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.4.47](https://img.shields.io/badge/AppVersion-v0.4.47-informational?style=flat-square)
 
 A Helm chart for https://github.com/sap/image-mapper
 
@@ -30,6 +30,8 @@ A Helm chart for https://github.com/sap/image-mapper
 | resources.limits.cpu | string | `"100m"` | CPU limit |
 | resources.requests.memory | string | `"128Mi"` | Memory request |
 | resources.requests.cpu | string | `"100m"` | CPU request |
+| dnsPolicy | string | `"ClusterFirst"` |  |
+| hostNetwork | bool | `false` |  |
 | webhook.certManager.enabled | bool | `false` | Whether to use cert-manager to manage webhook tls |
 | webhook.certManager.issuerGroup | string | `""` | Issuer group (only relevant if enabled is true; if unset, the default cert-manager group is used) |
 | webhook.certManager.issuerKind | string | `""` | Issuer kind (only relevant if enabled is true; if unset, the default cert-manager type 'Issuer' is used) |
