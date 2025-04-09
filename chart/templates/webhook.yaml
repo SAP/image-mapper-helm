@@ -134,8 +134,8 @@ webhooks:
     {{- with .Values.webhook.namespaceSelector.matchExpressions }}
     {{ toYaml . | nindent 4 }}
     {{- end }}
-  matchPolicy: Equivalent
-  sideEffects: None
-  timeoutSeconds: 10
-  failurePolicy: Fail
-  reinvocationPolicy: IfNeeded
+  matchPolicy: {{ .Values.webhook.matchPolicy | default "Equivalent" }}
+  sideEffects: {{ .Values.webhook.sideEffects | default "None" }}
+  timeoutSeconds: {{ .Values.webhook.timeoutSeconds | default 10 }}
+  failurePolicy: {{ .Values.webhook.failurePolicy | default "Fail" }}
+  reinvocationPolicy: {{ .Values.webhook.reinvocationPolicy | default "IfNeeded" }}

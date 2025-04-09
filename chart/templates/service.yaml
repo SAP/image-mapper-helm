@@ -7,9 +7,9 @@ metadata:
     {{- include "image-mapper.labels" . | nindent 4 }}
 spec:
   ports:
-    - port: 443
-      protocol: TCP
-      targetPort: webhooks
-      name: https
+    - port: {{ .Values.service.port }}
+      protocol: {{ .Values.service.protocol | default "TCP" }}
+      targetPort: {{ .Values.service.targetPort }}
+      name: {{ .Values.service.name | default "https" }}
   selector:
     {{- include "image-mapper.selectorLabels" . | nindent 4 }}
