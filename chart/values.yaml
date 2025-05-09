@@ -71,6 +71,25 @@ webhook:
     # -- Namespace selector matchExpressions, used by webhook
     matchExpressions: []
 
+  # -- Timeout in seconds for the webhook call. Must be between 1 and 30 seconds.
+  timeoutSeconds: 10
+
+  # -- What to do if the webhook call fails.
+  # -- Valid values: "Ignore", "Fail"
+  failurePolicy: Fail
+
+  # -- Policy for matching incoming requests to webhook rules.
+  # -- Valid values: "Exact", "Equivalent"
+  matchPolicy: Equivalent
+
+  # -- Indicates whether calling the webhook has side effects.
+  # -- Valid values: "None", "Some"
+  sideEffects: None
+
+  # -- Reinvocation policy defines whether the webhook should be called again
+  # -- Valid values: "Never", "IfNeeded"
+  reinvocationPolicy: IfNeeded
+
 # -- Log level
 logLevel: 0
 # -- Mapping rules
@@ -79,3 +98,14 @@ mapping: []
 labelsAddedIfModified: {}
 # -- Annotations to set on mutated pods
 annotationsAddedIfModified: {}
+
+# -- Service configuration
+service:
+  # -- The external port exposed by the service
+  port: 443
+  # -- Protocol to use (TCP/UDP). Default is TCP.
+  protocol: TCP
+  # -- Target port on the pod (usually a named port or containerPort)
+  targetPort: webhooks
+  # -- Name for the port (used for things like Prometheus scraping and readability)
+  name: https
