@@ -134,6 +134,10 @@ webhooks:
     {{- with .Values.webhook.namespaceSelector.matchExpressions }}
     {{ toYaml . | nindent 4 }}
     {{- end }}
+  {{- with .Values.webhook.matchConditions }}
+  matchConditions:
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
   matchPolicy: {{ .Values.webhook.matchPolicy | default "Equivalent" }}
   sideEffects: {{ .Values.webhook.sideEffects | default "None" }}
   timeoutSeconds: {{ .Values.webhook.timeoutSeconds | default 10 }}

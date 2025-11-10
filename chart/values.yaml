@@ -70,6 +70,15 @@ webhook:
     matchLabels: {}
     # -- Namespace selector matchExpressions, used by webhook
     matchExpressions: []
+  # -- Match conditions for webhooks can be used for fine-grained request filtering. Docs: https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#matching-requests-matchconditions
+  matchConditions: []
+  # -- Examples from documentation:
+  # -- - name: 'exclude-leases' # Each match condition must have a unique name
+  # --   expression: '!(request.resource.group == "coordination.k8s.io" && request.resource.resource == "leases")' # Match non-lease resources.
+  # -- - name: 'exclude-kubelet-requests'
+  # --   expression: '!("system:nodes" in request.userInfo.groups)' # Match requests made by non-node users.
+  # -- - name: 'rbac' # Skip RBAC requests, which are handled by the second webhook.
+  # --   expression: 'request.resource.group != "rbac.authorization.k8s.io"'
 
   # -- Timeout in seconds for the webhook call. Must be between 1 and 30 seconds.
   timeoutSeconds: 10
