@@ -1,6 +1,6 @@
 # image-mapper
 
-![Version: 0.4.54](https://img.shields.io/badge/Version-0.4.54-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.4.56](https://img.shields.io/badge/AppVersion-v0.4.56-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.4.56](https://img.shields.io/badge/AppVersion-v0.4.56-informational?style=flat-square)
 
 A Helm chart for https://github.com/sap/image-mapper
 
@@ -40,6 +40,7 @@ A Helm chart for https://github.com/sap/image-mapper
 | webhook.objectSelector.matchExpressions | list | `[]` | Object selector matchExpressions, used by webhook |
 | webhook.namespaceSelector.matchLabels | object | `{}` | Namespace selector matchLabels, used by webhook |
 | webhook.namespaceSelector.matchExpressions | list | `[]` | Namespace selector matchExpressions, used by webhook |
+| webhook.matchConditions | list | `[]` | Match conditions for webhooks can be used for fine-grained request filtering. Docs: https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#matching-requests-matchconditions |
 | webhook.timeoutSeconds | int | `10` | Timeout in seconds for the webhook call. Must be between 1 and 30 seconds. |
 | webhook.failurePolicy | string | `"Fail"` | Valid values: "Ignore", "Fail" |
 | webhook.matchPolicy | string | `"Equivalent"` | Valid values: "Exact", "Equivalent" |
