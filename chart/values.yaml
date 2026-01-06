@@ -57,11 +57,10 @@ pdb:
   labels: {}
   # -- Annotations to set on the PodDisruptionBudget
   annotations: {}
-  # -- Number of pods that are available after eviction as number or percentage (eg.: 50%)
+  # -- Number of pods that are available after eviction as number or percentage (e.g. 50%)
   # @default -- `"1"` (defaults to 1 if not specified)
   minAvailable: "1"
-  # -- Number of pods that are unavailable after eviction as number or percentage (eg.: 50%).
-  ## Has higher precedence over `pdb.minAvailable`
+  # -- Number of pods that are unavailable after eviction as number or percentage (e.g: 50%); has higher precedence over `pdb.minAvailable`
   maxUnavailable: ""
 
 webhook:
