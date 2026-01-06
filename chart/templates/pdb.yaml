@@ -1,23 +1,23 @@
-{{- if .Values.webhook.pdb.enabled }}
+{{- if .Values.pdb.enabled }}
 {{- if ge (int .Values.replicaCount) 2 }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "image-mapper.fullname" . }}
-  {{- with .Values.webhook.pdb.annotations }}
+  {{- with .Values.pdb.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   labels:
     {{- include "image-mapper.labels" . | nindent 4 }}
-    {{- with .Values.webhook.pdb.labels }}
+    {{- with .Values.pdb.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  {{- if .Values.webhook.pdb.maxUnavailable }}
-  maxUnavailable: {{ .Values.webhook.pdb.maxUnavailable }}
+  {{- if .Values.pdb.maxUnavailable }}
+  maxUnavailable: {{ .Values.pdb.maxUnavailable }}
   {{- else }}
-  minAvailable: {{ .Values.webhook.pdb.minAvailable }}
+  minAvailable: {{ .Values.pdb.minAvailable }}
   {{- end }}
   selector:
     matchLabels:
