@@ -2,5 +2,5 @@ apiVersion: v2
 name: image-mapper
 description: A Helm chart for https://github.com/sap/image-mapper
 type: application
-version: 0.5.2
+version: 0.5.3
 appVersion: v0.4.58
