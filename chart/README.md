@@ -1,6 +1,6 @@
 # image-mapper
 
-![Version: 0.5.2](https://img.shields.io/badge/Version-0.5.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.4.58](https://img.shields.io/badge/AppVersion-v0.4.58-informational?style=flat-square)
+![Version: 0.5.3](https://img.shields.io/badge/Version-0.5.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.4.58](https://img.shields.io/badge/AppVersion-v0.4.58-informational?style=flat-square)
 
 A Helm chart for https://github.com/sap/image-mapper
 
@@ -32,6 +32,11 @@ A Helm chart for https://github.com/sap/image-mapper
 | resources.requests.cpu | string | `"100m"` | CPU request |
 | dnsPolicy | string | `"ClusterFirst"` |  |
 | hostNetwork | bool | `false` |  |
+| pdb.enabled | bool | `true` | Whether to create a PodDisruptionBudget for the webhook |
+| pdb.labels | object | `{}` | Labels to set on the PodDisruptionBudget |
+| pdb.annotations | object | `{}` | Annotations to set on the PodDisruptionBudget |
+| pdb.minAvailable | string | `"1"` (defaults to 1 if not specified) | Number of pods that are available after eviction as number or percentage (e.g. 50%) |
+| pdb.maxUnavailable | string | `""` | Number of pods that are unavailable after eviction as number or percentage (e.g: 50%); has higher precedence over `pdb.minAvailable` |
 | webhook.certManager.enabled | bool | `false` | Whether to use cert-manager to manage webhook tls |
 | webhook.certManager.issuerGroup | string | `""` | Issuer group (only relevant if enabled is true; if unset, the default cert-manager group is used) |
 | webhook.certManager.issuerKind | string | `""` | Issuer kind (only relevant if enabled is true; if unset, the default cert-manager type 'Issuer' is used) |
