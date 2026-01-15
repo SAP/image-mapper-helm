@@ -37,6 +37,17 @@ spec:
     name: {{ include "image-mapper.fullname" . }}
     {{- end }}
   secretName: {{ include "image-mapper.fullname" . }}-tls-managed
+  {{- if or (and .Values.secretLabels (keys .Values.secretLabels)) (and .Values.secretAnnotations (keys .Values.secretAnnotations)) }}
+  secretTemplate:
+    {{- with .Values.secretAnnotations }}
+    annotations:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.secretLabels }}
+    labels:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  {{- end }}
 {{- else }}
 ---
 apiVersion: v1
@@ -45,6 +56,13 @@ metadata:
   name: {{ include "image-mapper.fullname" . }}-tls
   labels:
     {{- include "image-mapper.labels" . | nindent 4 }}
+    {{- with .Values.secretLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.secretAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 type: Opaque
 data:
   {{- $data := (lookup "v1" "Secret" .Release.Namespace (printf "%s-tls" (include "image-mapper.fullname" .))).data }}
