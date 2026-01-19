@@ -73,6 +73,16 @@ webhook:
     issuerKind: ""
     # -- Issuer name (only relevant if enabled is true; if unset, a self-signed issuer is used)
     issuerName: ""
+    # -- Enable long-lived CA certificate chain (only relevant if enabled is true and issuerName is empty)
+    # -- When enabled, creates a two-tier certificate chain: self-signed CA -> webhook certificate
+    # -- This prevents webhook pod restarts on certificate renewal since the CA remains stable
+    longLivedCa:
+      # -- Whether to use a long-lived CA certificate
+      enabled: false
+      # -- Duration of the CA certificate (default: 87600h = 10 years)
+      duration: "87600h0m0s"
+      # -- Renewal time for CA certificate (default: 720h = 1 month before expiry)
+      renewBefore: "720h0m0s"
   objectSelector:
     # -- Object selector matchLabels, used by webhook
     matchLabels: {}
