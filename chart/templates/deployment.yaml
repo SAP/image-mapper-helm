@@ -5,6 +5,10 @@ metadata:
   name: {{ include "image-mapper.fullname" . }}
   labels:
     {{- include "image-mapper.labels" . | nindent 4 }}
+  {{- with .Values.deploymentAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
