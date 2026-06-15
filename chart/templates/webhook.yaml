@@ -1,6 +1,47 @@
 {{- $caCert := "" }}
 {{- if .Values.webhook.certManager.enabled }}
 {{- if not .Values.webhook.certManager.issuerName }}
+{{- if .Values.webhook.certManager.longLivedCa.enabled }}
+{{- /* Two-tier certificate chain: self-signed issuer -> CA cert -> webhook cert */ -}}
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "image-mapper.fullname" . }}-selfsigned
+  labels:
+    {{- include "image-mapper.labels" . | nindent 4 }}
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "image-mapper.fullname" . }}-ca
+  labels:
+    {{- include "image-mapper.labels" . | nindent 4 }}
+spec:
+  commonName: {{ include "image-mapper.fullname" . }}-ca
+  secretName: {{ include "image-mapper.fullname" . }}-ca-tls
+  duration: {{ .Values.webhook.certManager.longLivedCa.duration }}
+  {{- with .Values.webhook.certManager.longLivedCa.renewBefore }}
+  renewBefore: {{ . }}
+  {{- end }}
+  isCA: true
+  issuerRef:
+    name: {{ include "image-mapper.fullname" . }}-selfsigned
+    kind: Issuer
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "image-mapper.fullname" . }}-ca
+  labels:
+    {{- include "image-mapper.labels" . | nindent 4 }}
+spec:
+  ca:
+    secretName: {{ include "image-mapper.fullname" . }}-ca-tls
+{{- else }}
+{{- /* Single-tier certificate chain (backwards compatible): self-signed issuer -> webhook cert */ -}}
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
@@ -10,6 +51,7 @@ metadata:
     {{- include "image-mapper.labels" . | nindent 4 }}
 spec:
   selfSigned: {}
+{{- end }}
 {{- end }}
 ---
 apiVersion: cert-manager.io/v1
@@ -33,10 +75,27 @@ spec:
     kind: {{ . }}
     {{- end }}
     name: {{ .Values.webhook.certManager.issuerName }}
+    {{- else if .Values.webhook.certManager.longLivedCa.enabled }}
+    name: {{ include "image-mapper.fullname" . }}-ca
+    kind: Issuer
     {{- else }}
     name: {{ include "image-mapper.fullname" . }}
+    kind: Issuer
     {{- end }}
   secretName: {{ include "image-mapper.fullname" . }}-tls-managed
+  {{/* TODO: uncomment this, once labels and annotations PR #25 is merged
+  {{- if or (and .Values.secretLabels (keys .Values.secretLabels)) (and .Values.secretAnnotations (keys .Values.secretAnnotations)) }}
+  secretTemplate:
+    {{- with .Values.secretAnnotations }}
+    annotations:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.secretLabels }}
+    labels:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  {{- end }}
+  */}}
 {{- else }}
 ---
 apiVersion: v1
@@ -45,6 +104,15 @@ metadata:
   name: {{ include "image-mapper.fullname" . }}-tls
   labels:
     {{- include "image-mapper.labels" . | nindent 4 }}
+  {{/* TODO: uncomment this, once labels and annotations PR #25 is merged
+    {{- with .Values.secretLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.secretAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  */}}
 type: Opaque
 data:
   {{- $data := (lookup "v1" "Secret" .Release.Namespace (printf "%s-tls" (include "image-mapper.fullname" .))).data }}
