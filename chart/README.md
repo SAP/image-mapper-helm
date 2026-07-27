@@ -1,6 +1,6 @@
 # image-mapper
 
-![Version: 0.5.25](https://img.shields.io/badge/Version-0.5.25-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.4.82](https://img.shields.io/badge/AppVersion-v0.4.82-informational?style=flat-square)
+![Version: 0.5.26](https://img.shields.io/badge/Version-0.5.26-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.4.83](https://img.shields.io/badge/AppVersion-v0.4.83-informational?style=flat-square)
 
 A Helm chart for https://github.com/sap/image-mapper
 
