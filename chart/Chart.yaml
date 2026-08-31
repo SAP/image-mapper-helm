@@ -3,4 +3,4 @@ name: image-mapper
 description: A Helm chart for https://github.com/sap/image-mapper
 type: application
 version: 0.5.30
-appVersion: v0.4.87
+appVersion: v0.4.88
