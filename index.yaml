@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   image-mapper:
   - apiVersion: v2
+    appVersion: v0.4.93
+    created: "2026-10-05T07:49:53.917309634Z"
+    description: A Helm chart for https://github.com/sap/image-mapper
+    digest: 62fad6fdb57b3c8b985bfa2940e3c7c03d06237cc52aa0a0fb080c13246bfdab
+    name: image-mapper
+    type: application
+    urls:
+    - https://github.com/SAP/image-mapper-helm/releases/download/0.5.36/image-mapper-0.5.36.tgz
+    version: 0.5.36
+  - apiVersion: v2
     appVersion: v0.4.92
     created: "2026-09-28T07:43:53.540689075Z"
     description: A Helm chart for https://github.com/sap/image-mapper
@@ -911,4 +921,4 @@ entries:
     urls:
     - https://github.com/SAP/image-mapper-helm/releases/download/0.4.0/image-mapper-0.4.0.tgz
     version: 0.4.0
-generated: "2026-09-28T07:43:53.539238704Z"
+generated: "2026-10-05T07:49:53.916635689Z"
